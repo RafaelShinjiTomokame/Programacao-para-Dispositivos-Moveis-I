@@ -1,0 +1,52 @@
+CREATE TABLE alunos (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  matricula VARCHAR(20) UNIQUE NOT NULL,
+  curso VARCHAR(50) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  telefone VARCHAR(20),
+  cep VARCHAR(10),
+  endereco VARCHAR(200),
+  cidade VARCHAR(100),
+  estado VARCHAR(50)
+);
+
+CREATE TABLE professores (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  titulacao VARCHAR(50) NOT NULL,
+  area VARCHAR(100) NOT NULL,
+  tempo_docencia INTEGER NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE disciplinas (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  carga_horaria INTEGER NOT NULL,
+  professor_id INTEGER REFERENCES professores(id),
+  curso VARCHAR(50) NOT NULL,
+  semestre VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE notas (
+  id SERIAL PRIMARY KEY,
+  aluno_id INTEGER REFERENCES alunos(id),
+  disciplina_id INTEGER REFERENCES disciplinas(id),
+  nota1 DECIMAL(3,1),
+  nota2 DECIMAL(3,1),
+  media DECIMAL(3,2),
+  situacao VARCHAR(20)
+);
+
+-- Tabela de usuários para autenticação (simples, um usuário "admin" ou por perfil)
+CREATE TABLE usuarios (
+  id SERIAL PRIMARY KEY,
+  login VARCHAR(50) UNIQUE NOT NULL,
+  senha VARCHAR(200) NOT NULL,
+  nome VARCHAR(100),
+  perfil VARCHAR(20)
+);
+
+-- Inserir um usuário padrão (senha: "123456" – será criptografada no backend)
+-- A senha criptografada será gerada ao rodar o servidor ou via rota de seed
