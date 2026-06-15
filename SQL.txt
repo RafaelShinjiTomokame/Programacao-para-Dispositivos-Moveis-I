@@ -1,0 +1,79 @@
+-- Tabela de usuários (autenticação)
+CREATE TABLE usuarios (
+  id SERIAL PRIMARY KEY,
+  login VARCHAR(100) UNIQUE NOT NULL,
+  senha VARCHAR(200) NOT NULL,
+  nome VARCHAR(100) NOT NULL,
+  perfil VARCHAR(20),
+  role VARCHAR(20) DEFAULT 'aluno' CHECK (role IN ('admin', 'professor', 'aluno'))
+);
+
+-- Tabela de alunos
+CREATE TABLE alunos (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  matricula VARCHAR(20) UNIQUE NOT NULL,
+  curso VARCHAR(50) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  telefone VARCHAR(20),
+  cep VARCHAR(10),
+  endereco VARCHAR(200),
+  cidade VARCHAR(100),
+  estado VARCHAR(50)
+);
+
+-- Tabela de professores
+CREATE TABLE professores (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  titulacao VARCHAR(50) NOT NULL,
+  area VARCHAR(100) NOT NULL,
+  tempo_docencia INTEGER NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL
+);
+
+-- Tabela de disciplinas
+CREATE TABLE disciplinas (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  carga_horaria INTEGER NOT NULL,
+  professor_id INTEGER REFERENCES professores(id),
+  curso VARCHAR(50) NOT NULL,
+  semestre VARCHAR(20) NOT NULL
+);
+
+-- Tabela de notas
+CREATE TABLE notas (
+  id SERIAL PRIMARY KEY,
+  aluno_id INTEGER REFERENCES alunos(id),
+  disciplina_id INTEGER REFERENCES disciplinas(id),
+  nota1 DECIMAL(3,1),
+  nota2 DECIMAL(3,1),
+  media DECIMAL(3,2),
+  situacao VARCHAR(20)
+);
+
+ALTER TABLE disciplinas DROP COLUMN IF EXISTS professor_id;
+ALTER TABLE disciplinas ADD COLUMN IF NOT EXISTS professor_responsavel VARCHAR(100);
+
+-- Tabela de avisos acadêmicos
+CREATE TABLE avisos (
+  id SERIAL PRIMARY KEY,
+  titulo VARCHAR(200) NOT NULL,
+  mensagem TEXT NOT NULL,
+  autor_id INTEGER REFERENCES usuarios(id),
+  autor_nome VARCHAR(100),
+  data_publicacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  data_expiracao TIMESTAMP,
+  prioridade VARCHAR(10) DEFAULT 'normal' CHECK (prioridade IN ('alta', 'normal', 'baixa')),
+  ativo BOOLEAN DEFAULT true
+);
+
+-- Tabela para controle de leitura (opcional, para notificações)
+CREATE TABLE avisos_lidos (
+  id SERIAL PRIMARY KEY,
+  aviso_id INTEGER REFERENCES avisos(id) ON DELETE CASCADE,
+  usuario_id INTEGER REFERENCES usuarios(id),
+  data_leitura TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(aviso_id, usuario_id)
+);
